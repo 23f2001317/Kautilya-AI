@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = "Kautilya AI Backend API"
+authors = ["Kautilya AI Devs"]
+readme = "README.md"
+packages = [{include = "api"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.111.0"
+uvicorn = "^0.30.1"
+pydantic = {extras = ["email"], version = ">=2.0"}
+structlog = "^24.2.0"
+redis = "^5.0.7"
+neo4j = "^5.21.0"
+sqlalchemy = "^2.0.31"
+asyncpg = "^0.29.0"
+pgvector = "^0.3.1"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.4.9"
+mypy = "^1.10.0"
+pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort (import sorting)
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = []
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+force-single-line = false
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+ignore_missing_imports = true

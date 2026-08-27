@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Turborepo
+.turbo/
+
+# Local Dev Infrastructure Data
+.docker-data/
+node_modules/
+
