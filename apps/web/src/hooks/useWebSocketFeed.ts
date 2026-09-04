@@ -33,7 +33,7 @@ export function useWebSocketFeed(options?: WebSocketOptions) {
   const defaultUrl =
     typeof window !== 'undefined'
       ? `ws://${window.location.hostname}:8000/ws/incidents`
-      : 'ws://127.0.0.1:8000/ws/incidents';
+      : 'ws://localhost:8000/ws/incidents';
 
   const wsUrl = options?.url || defaultUrl;
 
