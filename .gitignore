@@ -223,4 +223,4 @@ __marimo__/
 # Local Dev Infrastructure Data
 .docker-data/
 node_modules/
-
+apps/web/.next/

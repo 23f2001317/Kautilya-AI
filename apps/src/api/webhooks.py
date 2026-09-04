@@ -103,13 +103,15 @@ class IngestionResponse(BaseModel):
 # --- Event Queue Publisher Mock ---
 
 
+import asyncio
+
+
 async def publish_to_event_queue(alert: CanonicalAlert) -> None:
-    """Publish the canonical alert into the asynchronous event processing queue.
+    """Publish the canonical alert and trigger asynchronous remediation orchestration.
 
     Args:
         alert: Canonical normalized alert to dispatch.
     """
-    # ponytail: log-based queue mock for Phase 1; replace with RabbitMQ/Celery publisher in Phase 2
     logger.info(
         "published_canonical_alert_to_queue",
         canonical_id=alert.id,
@@ -118,6 +120,30 @@ async def publish_to_event_queue(alert: CanonicalAlert) -> None:
         severity=alert.severity,
         title=alert.title,
     )
+
+    # Enqueue task for Customer VPC Relay Proxy
+    try:
+        from .tasks import enqueue_relay_task
+
+        enqueue_relay_task(
+            task_type="sandbox_verification",
+            payload={
+                "alert_id": alert.id,
+                "service": alert.service_name,
+                "title": alert.title,
+            },
+        )
+    except Exception as exc:
+        logger.warning("failed_to_enqueue_relay_task", error=str(exc))
+
+    # Trigger asynchronous autonomous multi-plane remediation pipeline
+    try:
+        from ..core.orchestrator import orchestrator
+
+        asyncio.create_task(orchestrator.process_alert(alert.model_dump()))
+    except Exception as exc:
+        logger.warning("failed_to_start_orchestration", error=str(exc))
+
 
 
 # --- Route Endpoints ---
