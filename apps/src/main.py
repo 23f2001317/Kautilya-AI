@@ -2,6 +2,7 @@
 """FastAPI application entrypoint for Kautilya AI."""
 
 from contextlib import asynccontextmanager
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import structlog
@@ -19,6 +20,10 @@ from .core.database import init_db
 from .core.scheduler import autonomous_scan_loop
 
 logger = structlog.get_logger(__name__)
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
 
 @asynccontextmanager
@@ -45,9 +50,15 @@ app = FastAPI(
 )
 
 # Enable CORS for Next.js dashboard local dev and staging
+cors_origins_env = os.getenv("CORS_ALLOW_ORIGINS")
+allowed_cors_origins = (
+    [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+    if cors_origins_env
+    else DEFAULT_CORS_ORIGINS
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

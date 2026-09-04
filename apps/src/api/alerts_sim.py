@@ -8,7 +8,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 import structlog
 import os
-import requests
+import httpx
 
 from ..core.orchestrator import orchestrator
 
@@ -91,7 +91,8 @@ async def simulate_incident_alert(payload: SimulateAlertRequest | None = None) -
             try:
                 url = f"https://api.github.com/repos/{owner_repo}/commits"
                 headers = {"Authorization": f"token {github_token}"}
-                response = requests.get(url, headers=headers, timeout=5)
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    response = await client.get(url, headers=headers)
                 if response.status_code == 200 and len(response.json()) > 0:
                     commit_hash = response.json()[0]["sha"]
             except Exception as e:

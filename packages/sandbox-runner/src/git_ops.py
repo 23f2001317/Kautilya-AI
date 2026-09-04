@@ -90,10 +90,14 @@ class GitOpsManager:
             updated_lines = original_content.splitlines()
             for line in lines:
                 if line.startswith("-") and not line.startswith("---"):
-                    to_remove = line[1:].strip()
-                    updated_lines = [l for l in updated_lines if to_remove not in l]
+                    to_remove = line[1:]
+                    try:
+                        updated_lines.remove(to_remove)
+                    except ValueError:
+                        logger.warning("native_patch_remove_line_not_found", target_file=str(target_file))
+                        return False
                 elif line.startswith("+") and not line.startswith("+++"):
-                    to_add = line[1:].strip()
+                    to_add = line[1:]
                     updated_lines.append(to_add)
 
             target_file.write_text("\n".join(updated_lines) + "\n", encoding="utf-8")

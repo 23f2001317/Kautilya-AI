@@ -1,5 +1,5 @@
 # packages/security/src/kms.py
-"""Hardware KMS envelope encryption provider for secrets and environment variables."""
+"""Mock KMS envelope encryption provider for local demo/testing workflows only."""
 
 import base64
 import hashlib
@@ -11,10 +11,18 @@ logger = structlog.get_logger(__name__)
 
 
 class KMSEnvelopeEncryption:
-    """Envelope encryption provider simulating AWS KMS master key and data key hierarchy."""
+    """Demo-only envelope encryption provider simulating KMS key hierarchy.
 
-    def __init__(self, master_key_arn: str = "arn:aws:kms:us-east-1:123456789012:key/kautilya-prod") -> None:
+    This implementation is intentionally mock-grade and must not be used for production secrets.
+    """
+
+    def __init__(self, master_key_arn: str = "arn:aws:kms:us-east-1:123456789012:key/kautilya-demo-mock") -> None:
+        if any(token in master_key_arn.lower() for token in ("prod", "production", "live")):
+            raise ValueError(
+                "KMSEnvelopeEncryption is a mock-only implementation and cannot be configured with production key identifiers."
+            )
         self.master_key_arn = master_key_arn
+        logger.warning("kms_mock_encryption_in_use_not_for_production", master_key_arn=master_key_arn)
         # Derive master key from ARN for local envelope operations
         self._master_secret = hashlib.sha256(master_key_arn.encode("utf-8")).digest()
 

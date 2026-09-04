@@ -78,19 +78,20 @@ export function useWebSocketFeed(options?: WebSocketOptions) {
           const payload = JSON.parse(evt.data);
           // Ignore ack/pong events for logs
           if (payload.event === 'ack') return;
-          const { event_type, data } = payload;
+          const eventType = payload.event_type ?? payload.event;
+          const { data } = payload;
 
-          if (event_type === 'agent_thought') {
+          if (eventType === 'agent_thought') {
             appendLog(data.source || 'AGENT', data.message, data.correlation_id);
-          } else if (event_type === 'incident_created') {
+          } else if (eventType === 'incident_created') {
             appendLog('ORCHESTRATOR', `New incident ${data.incident_id} detected on service ${data.service}`, data.correlation_id);
-            onIncidentEventRef.current?.(event_type, data);
-          } else if (event_type === 'incident_updated') {
+            onIncidentEventRef.current?.(eventType, data);
+          } else if (eventType === 'incident_updated') {
             appendLog('GRAPH', `Incident ${data.incident_id} transition to ${data.status.toUpperCase()}`, data.correlation_id);
-            onIncidentEventRef.current?.(event_type, data);
-          } else if (event_type === 'incident_resolved') {
+            onIncidentEventRef.current?.(eventType, data);
+          } else if (eventType === 'incident_resolved') {
             appendLog('GOVERNANCE', `Remediation approved by ${data.signer}. Automated PR dispatched: ${data.pr_url}`);
-            onIncidentEventRef.current?.(event_type, data);
+            onIncidentEventRef.current?.(eventType, data);
           }
         } catch {
           // Plain text log fallback
@@ -129,6 +130,9 @@ export function useWebSocketFeed(options?: WebSocketOptions) {
     return () => {
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
       if (wsRef.current) {
+        if ((wsRef.current as any)._pingInterval) {
+          clearInterval((wsRef.current as any)._pingInterval);
+        }
         wsRef.current.onclose = null;
         wsRef.current.onerror = null;
         wsRef.current.onmessage = null;

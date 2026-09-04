@@ -2,8 +2,8 @@
 """Customer VPC Relay task dispatch and result collection API."""
 
 from datetime import datetime, timezone
-import hashlib
 import json
+import re
 from typing import Any
 from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Response, status
@@ -78,8 +78,8 @@ async def submit_task_result(
             detail="Mismatched task_id in path and submission payload",
         )
 
-    # Validate signature format (64-character SHA-256 hex digest)
-    if len(submission.signature) != 64:
+    # Validate signature format (64-character lowercase SHA-256 hex digest)
+    if not re.fullmatch(r"[0-9a-f]{64}", submission.signature):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid cryptographic signature format",

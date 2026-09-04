@@ -2,8 +2,8 @@
 """Test verification for Phase 4: Human-in-the-Loop Governance & UI Integration."""
 
 from fastapi.testclient import TestClient
-from src.api.incidents import _INCIDENT_STORE, Incident
-from src.main import app
+from apps.src.api.incidents import _INCIDENT_STORE, Incident
+from apps.src.main import app
 
 client = TestClient(app)
 
