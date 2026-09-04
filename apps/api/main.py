@@ -1,8 +1,9 @@
-from fastapi import FastAPI
+# apps/api/main.py
+"""FastAPI application root re-export for Kautilya AI."""
 
-app = FastAPI(title="Kautilya AI Backend API")
+try:
+    from src.main import app
+except ImportError:
+    from apps.src.main import app
 
-
-@app.get("/")
-def read_root() -> dict[str, str]:
-    return {"message": "Welcome to Kautilya AI API"}
+__all__ = ["app"]

@@ -110,6 +110,7 @@ if __name__ == "__main__":
         "alert": sample_alert,
         "graph_context": [],
         "hypothesis": "",
+        "structured_hypothesis": None,
         "proposed_patch": "",
         "verification_status": "pending",
         "retry_count": 0,

@@ -86,8 +86,13 @@ async def require_idempotency(
     Raises:
         HTTPException: 409 Conflict if duplicate request detected.
     """
-    if x_idempotency_key and x_idempotency_key.strip():
-        key: str = x_idempotency_key.strip()
+    header_key = (
+        x_idempotency_key
+        or request.headers.get("x-idempotency-key")
+        or request.headers.get("idempotency-key")
+    )
+    if header_key and header_key.strip():
+        key: str = header_key.strip()
     else:
         body: bytes = await request.body()
         key = hashlib.sha256(body).hexdigest()
